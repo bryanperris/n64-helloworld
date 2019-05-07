@@ -2,13 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 project(helloworld C)
 
-set(CROSS_COMPILING 1)
 set(CMAKE_C_COMPILER mips64-elf-gcc)
 set(CMAKE_CXX_COMPILER mips64-elf-g++)
 set(CMAKE_ASM_COMPILER mips64-elf-as)
-set(CMAKE_LINKER mips64-elf-ld)
-set(CMAKE_C_FLAGS "-std=gnu99 -march=vr4300 -mtune=vr4300 -O2 -Wall -Werror -I/usr/local/mips64-elf/include -L/usr/local/mips64-elf/lib -ldragon -lc -lm -ldragonsys -Tn64ld.x")
-set(CMAKE_C_LINK_EXECUTABLE "<CMAKE_C_COMPILER> -o <TARGET> <OBJECTS> <FLAGS> <CMAKE_C_LINK_FLAGS> <LINK_FLAGS> <LINK_LIBRARIES>")
+set(CMAKE_C_FLAGS "-std=gnu99 -march=vr4300 -mtune=vr4300 -O2 -Wall -Werror -I/usr/local/mips64-elf/include")
+set(CMAKE_C_LINK_EXECUTABLE "mips64-elf-ld <OBJECTS> -L/usr/local/mips64-elf/lib -ldragon -lc -lm -ldragonsys -Tn64ld.x -o <TARGET>")
 set(CMAKE_ASM_FLAGS "-mtune=vr4300 -march=vr4300")
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
@@ -25,7 +23,7 @@ add_custom_command(
     TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generate N64 Catridge Image"
-    COMMAND mips64-elf-objcopy ${CMAKE_PROJECT_NAME} ${CMAKE_PROJECT_NAME} -O binary
-    COMMAND n64tool -l 2M -h /usr/local/mips64-elf/lib/header -o ${CMAKE_PROJECT_NAME}.z64 ${CMAKE_PROJECT_NAME} -t ${CMAKE_PROJECT_NAME}
+    COMMAND mips64-elf-objcopy ${CMAKE_PROJECT_NAME} ${CMAKE_PROJECT_NAME}.bin -O binary
+    COMMAND n64tool -l 2M -t ${CMAKE_PROJECT_NAME} -h /usr/local/mips64-elf/lib/header -o ${CMAKE_PROJECT_NAME}.z64 ${CMAKE_PROJECT_NAME}.bin
     COMMAND chksum64 ${CMAKE_PROJECT_NAME}.z64
 )
